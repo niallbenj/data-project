@@ -24,7 +24,5 @@ class loadData():
         
 
 
-load = loadData("testData")
-result = load.getAllReports()
-for report in result:
-    print(report.bodyText)
+
+        

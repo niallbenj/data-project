@@ -6,7 +6,7 @@ def getWords(text):
     return re.compile('\w+').findall(text)
 
 def stemWords(words):
-    stemmer = SnowballStemmer("english", ignore_stopwords=True);
+    stemmer = SnowballStemmer("english");
     singles = [stemmer.stem(word) for word in words]
     return singles
 

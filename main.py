@@ -5,5 +5,5 @@ load = dataLoader.loadData("testData")
 result = load.getAllReports()
 for report in result:
     wordsWithoutPunctuation = stemmer.getWords(report.bodyText)
-    stemmer.stemParagraph(wordsWithoutPunctuation)
-        
+    stemmedWords = stemmer.stemWords(wordsWithoutPunctuation)
+    stemmer.removeStopWords(stemmedWords)

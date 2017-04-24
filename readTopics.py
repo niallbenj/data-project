@@ -6,13 +6,17 @@ class readTopics():
     def __init__(self):
         self.lookupDictionary = {}
         self.completeTopicList = []
-	myFile = open("topicDictionary.txt", 'r+')
-	topicList = myFile.readlines()
-	    for i, element in enumerate(objects):
-     		self.lookupDictionary[element.rstrip('\n')] = i
-        return(self.lookupDictionary)
+        self.topicNotInTopicList = []
+        myFile = open("topicDictionary.txt", 'r+')
+        topicList = myFile.readlines()
+        for i, element in enumerate(topicList):
+            self.lookupDictionary[element.rstrip('\n')] = i
 
     def generateMultiLabelArray(self, singleDocumentTopics):
-	for item in singleDocumentTopics:
-	    topicArray.append(self.lookupDictionary[item])
+        topicArray = []
+        for item in singleDocumentTopics:
+            if item in self.lookupDictionary:
+                topicArray.append(self.lookupDictionary[item])
+            else:
+                self.topicNotInTopicList.append(item)
         return(topicArray)

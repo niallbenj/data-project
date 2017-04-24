@@ -12,7 +12,7 @@ def stemWords(words):
 
 def removeStopWords(words):
     stop = set(stopwords.words('english'))
-    print([i for i in words if i not in stop])
+    return ([i for i in words if i not in stop])
 
 
 

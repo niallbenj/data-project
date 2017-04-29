@@ -4,15 +4,16 @@ from os.path import isfile, join
 
 class loadData():
 
-    def __init__(self, directory):
+    def __init__(self, directory, dataName):
         self.directory = directory
         self.allJSONFiles = [files for files in listdir(directory)]
         self.allReports = []
+        self.dataName = dataName
 
     def getAllReports(self):
         for file in self.allJSONFiles:
             myFile = json.loads(open(self.directory + "/" + file).read())
-            individualReport = myFile['TrainingData']
+            individualReport = myFile[self.dataName]
             for item in individualReport:
                 documentName = item
                 publishDate = individualReport[item]['webPublicationDate']

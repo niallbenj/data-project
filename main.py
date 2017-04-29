@@ -20,7 +20,7 @@ def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
 
 np.set_printoptions(threshold=np.nan)
 
-load = dataLoader.loadData("trainingData")
+load = dataLoader.loadData("trainingData", 'TrainingData')
 reports = load.getAllReports()
 topicDictionary = readTopics.readTopics()
 
@@ -54,7 +54,7 @@ print (datetime.now() - initialTime )
 classifier = OneVsRestClassifier(SGDClassifier()).fit(tfidf_matrix, labeledTopics)
 print('done classification')
 
-predictData = dataLoader.loadData("testData")
+predictData = dataLoader.loadData("testData", 'TestData')
 reportsToPredict = []
 reportNames = []
 for reportToPredict in predictData.getAllReports():

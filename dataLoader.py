@@ -15,14 +15,10 @@ class loadData():
             myFile = json.loads(open(self.directory + "/" + file).read())
             individualReport = myFile['TrainingData']
             for item in individualReport:
-                publishDate = individualReport[item]['webPublicationDate'] 
+                documentName = item
+                publishDate = individualReport[item]['webPublicationDate']
                 topics = individualReport[item]['topics']
                 bodyText = individualReport[item]['bodyText']
-                report = singleDataReport.singleDataReport(publishDate, topics, bodyText)
+                report = singleDataReport.singleDataReport(documentName, publishDate, topics, bodyText)
                 self.allReports.append(report)
         return self.allReports
-        
-
-
-
-        

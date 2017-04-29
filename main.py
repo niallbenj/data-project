@@ -9,43 +9,70 @@ from scipy.sparse.csr import csr_matrix
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.linear_model import SGDClassifier
 import sys
-import time
+from datetime import datetime
+import csv
 
-load = dataLoader.loadData("testData")
+np.set_printoptions(threshold=np.nan)
+
+load = dataLoader.loadData("learnData")
 reports = load.getAllReports()
 topicDictionary = readTopics.readTopics()
 
-print(len(topicDictionary.lookupDictionary))
 myLabelMatrix = []
 labelstrings = []
 corpus = []
-reportToPredict = [reports[6].bodyText, reports[10].bodyText]
-tf = TfidfVectorizer(input='content', analyzer='word', ngram_range=(1,1),
-                     min_df = 0, sublinear_tf=True)
+tf = TfidfVectorizer(input='content',
+                     analyzer='word',
+                     ngram_range=(1,1),
+                     min_df = 0.00009,
+                     max_features = 2000,
+                     stop_words = 'english',
+                     use_idf = True,
+                     sublinear_tf=False)
 print ('initial time')
-initialTime = time.time()
+initialTime = datetime.now()
 print (initialTime)
 for report in reports:
     myLabelMatrix.append(topicDictionary.generateMultiLabelArray(report.topics))
-    #wordsWithoutPunctuation = stemmer.getWords(report.bodyText)
-    #stemmedWords = stemmer.stemWords(wordsWithoutPunctuation)
-    #removedStopWords = stemmer.removeStopWords(stemmedWords)
-    #corpus.append(removedStopWords)
     corpus.append(report.bodyText)
+f1 = open('Results/output.txt', 'w+')
+print(myLabelMatrix, file = f1)
 
 print ('end of loop')
-print ((time.time()- initialTime )/60)
+print (datetime.now() - initialTime )
 tfidf_matrix = tf.fit_transform(corpus)
-reportToPredictMatrix = tf.transform(reportToPredict)
-print('reportToPredictmatrix made')
-print ((time.time()- initialTime )/60)
-labeledTopics = MultiLabelBinarizer().fit_transform(myLabelMatrix)
+
+print('tfidf matrix made')
+print (datetime.now() - initialTime )
+mlb = MultiLabelBinarizer()
+labeledTopics = mlb.fit_transform(myLabelMatrix)
 print('created labeled topics')
-print ((time.time()- initialTime )/60)
+print (datetime.now() - initialTime )
 classifier = OneVsRestClassifier(SGDClassifier()).fit(tfidf_matrix, labeledTopics)
 print('done classification')
-y_pred = classifier.predict(reportToPredictMatrix)
 
-print ((time.time()- initialTime )/60)
+predictData = dataLoader.loadData("predictData")
+reportsToPredict = []
+reportNames = []
+for reportToPredict in predictData.getAllReports():
+    reportsToPredict.append(reportToPredict.bodyText)
+    reportNames.append(reportToPredict.documentName)
+
+reportToPredictMatrix = tf.transform(reportsToPredict)
+print('reportToPredictmatrix made')
+print (datetime.now() - initialTime )
+
+y_pred = classifier.predict(reportToPredictMatrix)
+all_labels = mlb.inverse_transform(y_pred)
+
+print (datetime.now() - initialTime )
 print("check result!")
-print(y_pred)
+
+
+with open('Results/output.csv', 'w') as csvFile:
+    writeline = csv.writer(csvFile, delimiter = ',')
+    writeline.writerow(['hi', "low"])
+
+for item, labels in zip(reportNames, all_labels):
+    print('{0} => {1}'.format(item, ', '.join(labels)))
+print (datetime.now() - initialTime )

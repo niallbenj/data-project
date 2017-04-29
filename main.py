@@ -1,5 +1,4 @@
 import dataLoader
-import stemmer
 import readTopics
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction.text import TfidfVectorizer

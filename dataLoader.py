@@ -1,7 +1,6 @@
 import json
 from os import listdir
 from os.path import isfile, join
-import singleDataReport
 
 class loadData():
 
@@ -19,6 +18,13 @@ class loadData():
                 publishDate = individualReport[item]['webPublicationDate']
                 topics = individualReport[item]['topics']
                 bodyText = individualReport[item]['bodyText']
-                report = singleDataReport.singleDataReport(documentName, publishDate, topics, bodyText)
+                report = singleDataReport(documentName, publishDate, topics, bodyText)
                 self.allReports.append(report)
         return self.allReports
+
+class singleDataReport():
+    def __init__(self, documentName, publishDate, topics, bodyText):
+        self.publishDate = publishDate
+        self.topics = topics
+        self.bodyText = bodyText
+        self.documentName = documentName

@@ -20,7 +20,7 @@ def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
 
 np.set_printoptions(threshold=np.nan)
 
-load = dataLoader.loadData("learnData")
+load = dataLoader.loadData("trainingData")
 reports = load.getAllReports()
 topicDictionary = readTopics.readTopics()
 
@@ -40,8 +40,6 @@ print (initialTime)
 for report in reports:
     myLabelMatrix.append(topicDictionary.generateMultiLabelArray(report.topics))
     corpus.append(report.bodyText)
-f1 = open('Results/output.txt', 'w+')
-print(myLabelMatrix, file = f1)
 
 print ('end of loop')
 print (datetime.now() - initialTime )
@@ -56,7 +54,7 @@ print (datetime.now() - initialTime )
 classifier = OneVsRestClassifier(SGDClassifier()).fit(tfidf_matrix, labeledTopics)
 print('done classification')
 
-predictData = dataLoader.loadData("predictData")
+predictData = dataLoader.loadData("testData")
 reportsToPredict = []
 reportNames = []
 for reportToPredict in predictData.getAllReports():

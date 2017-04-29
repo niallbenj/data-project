@@ -11,6 +11,13 @@ import sys
 from datetime import datetime
 import csv
 
+def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
+    csvRow = [0] * len(allLabels)
+    for label in labelsInReport:
+        csvRow[allLabels.index(label)] = 1
+    csvRow.insert(0, reportName)
+    csvWriter.writerow(csvRow)
+
 np.set_printoptions(threshold=np.nan)
 
 load = dataLoader.loadData("learnData")
@@ -18,7 +25,6 @@ reports = load.getAllReports()
 topicDictionary = readTopics.readTopics()
 
 myLabelMatrix = []
-labelstrings = []
 corpus = []
 tf = TfidfVectorizer(input='content',
                      analyzer='word',
@@ -67,11 +73,15 @@ all_labels = mlb.inverse_transform(y_pred)
 print (datetime.now() - initialTime )
 print("check result!")
 
+header = ['id'] + topicDictionary.lookupList
+with open('Results/Submission.csv', 'w', newline='') as outcsv:
+    csvWriter = csv.writer(outcsv)
 
-with open('Results/output.csv', 'w') as csvFile:
-    writeline = csv.writer(csvFile, delimiter = ',')
-    writeline.writerow(['hi', "low"])
+    csvWriter.writerow(header)
 
-for item, labels in zip(reportNames, all_labels):
-    print('{0} => {1}'.format(item, ', '.join(labels)))
+    for reportName, labels in zip(reportNames, all_labels):
+        PrintToSubmissionCSV(csvWriter,
+                             reportName,
+                             labels,
+                             topicDictionary.lookupList)
 print (datetime.now() - initialTime )

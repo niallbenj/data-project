@@ -20,6 +20,7 @@ def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
 
 np.set_printoptions(threshold=np.nan)
 
+
 load = dataLoader.loadData("trainingData", 'TrainingData')
 reports = load.getAllReports()
 topicDictionary = readTopics.readTopics()
@@ -28,9 +29,9 @@ myLabelMatrix = []
 corpus = []
 tf = TfidfVectorizer(input='content',
                      analyzer='word',
-                     ngram_range=(1,1),
+                     ngram_range=(1,3),
                      min_df = 0.00009,
-                     max_features = 2000,
+                     max_features = 200000,
                      stop_words = 'english',
                      use_idf = True,
                      sublinear_tf=False)
@@ -38,8 +39,12 @@ print ('initial time')
 initialTime = datetime.now()
 print (initialTime)
 for report in reports:
-    myLabelMatrix.append(topicDictionary.generateMultiLabelArray(report.topics))
-    corpus.append(report.bodyText)
+    reducedTopics = topicDictionary.generateMultiLabelArray(report.topics)
+    if reducedTopics:
+        myLabelMatrix.append(reducedTopics)
+        corpus.append(report.bodyText)
+
+print(myLabelMatrix)
 
 print ('end of loop')
 print (datetime.now() - initialTime )
@@ -51,7 +56,7 @@ mlb = MultiLabelBinarizer()
 labeledTopics = mlb.fit_transform(myLabelMatrix)
 print('created labeled topics')
 print (datetime.now() - initialTime )
-classifier = OneVsRestClassifier(SGDClassifier()).fit(tfidf_matrix, labeledTopics)
+classifier = OneVsRestClassifier(SGDClassifier(n_jobs = 1)).fit(tfidf_matrix, labeledTopics)
 print('done classification')
 
 predictData = dataLoader.loadData("testData", 'TestData')
@@ -82,4 +87,5 @@ with open('Results/Submission.csv', 'w', newline='') as outcsv:
                              reportName,
                              labels,
                              topicDictionary.lookupList)
+print('Completed')
 print (datetime.now() - initialTime )

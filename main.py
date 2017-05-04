@@ -18,74 +18,90 @@ def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
     csvRow.insert(0, reportName)
     csvWriter.writerow(csvRow)
 
-np.set_printoptions(threshold=np.nan)
+def GetBodyTextAndTopics(directory, jsonName):
+    reports = []
+    dataLoad = dataLoader.dataLoader(directory, jsonName)
+    for report in dataLoad.getAllReports():
+        reports.append(report)
+    (topics, bodyTexts) = RemoveUnwantedTopics(reports)
+    return(topics, bodyTexts)
 
+def RemoveUnwantedTopics(reports):
+    topicDictionary = readTopics.readTopics()
+    allReducedTopics = []
+    allBodyTexts = []
+    for report in reports:
+        reducedTopics = topicDictionary.generateMultiLabelArray(report.topics)
+        if reducedTopics:
+            allReducedTopics.append(reducedTopics)
+            allBodyTexts.append(report.bodyText)
+    return(allReducedTopics, allBodyTexts)
 
-load = dataLoader.loadData("trainingData", 'TrainingData')
-reports = load.getAllReports()
-topicDictionary = readTopics.readTopics()
+def CreateClassifier(topics, bodyTexts, vectorizer, multiLabelBinarizer):
+    tfidf_matrix = vectorizer.fit_transform(bodyTexts)
+    print('tfidf matrix made')
 
-myLabelMatrix = []
-corpus = []
-tf = TfidfVectorizer(input='content',
-                     analyzer='word',
-                     ngram_range=(1,3),
-                     min_df = 0.00009,
-                     max_features = 200000,
-                     stop_words = 'english',
-                     use_idf = True,
-                     sublinear_tf=False)
-print ('initial time')
-initialTime = datetime.now()
-print (initialTime)
-for report in reports:
-    reducedTopics = topicDictionary.generateMultiLabelArray(report.topics)
-    if reducedTopics:
-        myLabelMatrix.append(reducedTopics)
-        corpus.append(report.bodyText)
+    labeledTopics = multiLabelBinarizer.fit_transform(topics)
+    print('created labeled topics')
+    classifier = OneVsRestClassifier(SGDClassifier(n_jobs = 1)).fit(tfidf_matrix, labeledTopics)
+    print('done classification')
+    return classifier
 
-print(myLabelMatrix)
+def PredictTestData(vectorizer, classifier, mlb):
+    predictData = dataLoader.dataLoader("testData", 'TestData')
 
-print ('end of loop')
-print (datetime.now() - initialTime )
-tfidf_matrix = tf.fit_transform(corpus)
+    reportsToPredict = []
+    reportNames = []
+    for reportToPredict in predictData.getAllReports():
+        reportsToPredict.append(reportToPredict.bodyText)
+        reportNames.append(reportToPredict.documentName)
 
-print('tfidf matrix made')
-print (datetime.now() - initialTime )
-mlb = MultiLabelBinarizer()
-labeledTopics = mlb.fit_transform(myLabelMatrix)
-print('created labeled topics')
-print (datetime.now() - initialTime )
-classifier = OneVsRestClassifier(SGDClassifier(n_jobs = 1)).fit(tfidf_matrix, labeledTopics)
-print('done classification')
+    reportToPredictMatrix = vectorizer.transform(reportsToPredict)
+    print('reportToPredictmatrix made')
 
-predictData = dataLoader.loadData("testData", 'TestData')
-reportsToPredict = []
-reportNames = []
-for reportToPredict in predictData.getAllReports():
-    reportsToPredict.append(reportToPredict.bodyText)
-    reportNames.append(reportToPredict.documentName)
+    y_pred = classifier.predict(reportToPredictMatrix)
+    all_labels = mlb.inverse_transform(y_pred)
 
-reportToPredictMatrix = tf.transform(reportsToPredict)
-print('reportToPredictmatrix made')
-print (datetime.now() - initialTime )
+    print("check result!")
 
-y_pred = classifier.predict(reportToPredictMatrix)
-all_labels = mlb.inverse_transform(y_pred)
+    topicDictionary = readTopics.readTopics()
+    header = ['id'] + topicDictionary.lookupList
+    with open('Results/Submission.csv', 'w', newline='') as outcsv:
+        csvWriter = csv.writer(outcsv)
 
-print (datetime.now() - initialTime )
-print("check result!")
+        csvWriter.writerow(header)
 
-header = ['id'] + topicDictionary.lookupList
-with open('Results/Submission.csv', 'w', newline='') as outcsv:
-    csvWriter = csv.writer(outcsv)
+        for reportName, labels in zip(reportNames, all_labels):
+            PrintToSubmissionCSV(csvWriter,
+                                 reportName,
+                                 labels,
+                                 topicDictionary.lookupList)
 
-    csvWriter.writerow(header)
+def main():
+    print ('initial time')
+    initialTime = datetime.now()
+    print (initialTime)
 
-    for reportName, labels in zip(reportNames, all_labels):
-        PrintToSubmissionCSV(csvWriter,
-                             reportName,
-                             labels,
-                             topicDictionary.lookupList)
-print('Completed')
-print (datetime.now() - initialTime )
+    vectorizer = TfidfVectorizer(input='content',
+                         analyzer='word',
+                         ngram_range=(1,1),
+                         min_df = 0.00009,
+                         max_features = 40000,
+                         stop_words = 'english',
+                         use_idf = True,
+                         sublinear_tf=False)
+
+    topics, bodyTexts = GetBodyTextAndTopics("trainingData", 'TrainingData')
+    print ('Loaded all topics and bodyTexts')
+    print (datetime.now() - initialTime )
+
+    mlb = MultiLabelBinarizer()
+    classifier = CreateClassifier(topics, bodyTexts, vectorizer, mlb)
+
+    PredictTestData(vectorizer, classifier, mlb)
+
+    print('Completed')
+    print (datetime.now() - initialTime )
+
+if __name__ == "__main__":
+    main()

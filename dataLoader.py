@@ -2,7 +2,7 @@ import json
 from os import listdir
 from os.path import isfile, join
 
-class loadData():
+class dataLoader():
 
     def __init__(self, directory, dataName):
         self.directory = directory

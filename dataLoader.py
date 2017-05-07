@@ -12,15 +12,16 @@ class dataLoader():
 
     def getAllReports(self):
         for file in self.allJSONFiles:
-            myFile = json.loads(open(self.directory + "/" + file).read())
-            individualReport = myFile[self.dataName]
-            for item in individualReport:
-                documentName = item
-                publishDate = individualReport[item]['webPublicationDate']
-                topics = individualReport[item]['topics']
-                bodyText = individualReport[item]['bodyText']
-                report = singleDataReport(documentName, publishDate, topics, bodyText)
-                self.allReports.append(report)
+            with open(self.directory + "/" + file) as data_file:
+                data = json.load(data_file)
+                individualReport = data[self.dataName]
+                for item in individualReport:
+                    documentName = item
+                    publishDate = individualReport[item]['webPublicationDate']
+                    topics = individualReport[item]['topics']
+                    bodyText = individualReport[item]['bodyText']
+                    report = singleDataReport(documentName, publishDate, topics, bodyText)
+                    self.allReports.append(report)
         return self.allReports
 
 class singleDataReport():

@@ -19,23 +19,16 @@ def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
     csvWriter.writerow(csvRow)
 
 def GetBodyTextAndTopics(directory, jsonName):
-    reports = []
+    topicDictionary = readTopics.readTopics()
+    topics = []
+    bodyTexts = []
     dataLoad = dataLoader.dataLoader(directory, jsonName)
     for report in dataLoad.getAllReports():
-        reports.append(report)
-    (topics, bodyTexts) = RemoveUnwantedTopics(reports)
-    return(topics, bodyTexts)
-
-def RemoveUnwantedTopics(reports):
-    topicDictionary = readTopics.readTopics()
-    allReducedTopics = []
-    allBodyTexts = []
-    for report in reports:
         reducedTopics = topicDictionary.generateMultiLabelArray(report.topics)
         if reducedTopics:
-            allReducedTopics.append(reducedTopics)
-            allBodyTexts.append(report.bodyText)
-    return(allReducedTopics, allBodyTexts)
+            topics.append(reducedTopics)
+            bodyTexts.append(report.bodyText)
+    return(topics, bodyTexts)
 
 def CreateClassifier(topics, bodyTexts, vectorizer, multiLabelBinarizer):
     tfidf_matrix = vectorizer.fit_transform(bodyTexts)
@@ -84,9 +77,9 @@ def main():
 
     vectorizer = TfidfVectorizer(input='content',
                          analyzer='word',
-                         ngram_range=(1,1),
+                         ngram_range=(1,3),
                          min_df = 0.00009,
-                         max_features = 40000,
+                         max_features = 200000,
                          stop_words = 'english',
                          use_idf = True,
                          sublinear_tf=False)

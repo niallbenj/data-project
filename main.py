@@ -54,9 +54,6 @@ for i, report in enumerate(justBodies):
     if (singleTopicArray != []):
         myLabelMatrix.append(singleTopicArray)
         corpus.append(theNextBody)
-        if debug == 1:
-            pass
-            # print(individualTopicArray)
     justBodies[i] = None
     justTopics[i] = None
 
@@ -73,9 +70,15 @@ for reportToPredict in predictData.getAllReports():
         t = topicDictionary.generateMultiLabelArrayTest(reportToPredict.topics)
         topicsInResult[reportToPredict.documentName] = t
 
-# call the optimizer
-# If optimizing then then don't return anything to write to file. Just exit
-# and calculate F1 scores.
+#     _____ _               _  __
+#    /  __ \ |             (_)/ _|
+#    | /  \/ | __ _ ___ ___ _| |_ _   _
+#    | |   | |/ _` / __/ __| |  _| | | |
+#    | \__/\ | (_| \__ \__ \ | | | |_| |
+#     \____/_|\__,_|___/___/_|_|  \__, |
+#                                  __/ |
+#                                 |___/
+
 inputs = (initialTime, myLabelMatrix, corpus,
           reportsToPredict, topicsInResult, debug)
 if (debug == 0):
@@ -83,8 +86,13 @@ if (debug == 0):
 else:
     optimizer(inputs)
 
+#         __       _____  _____  _   _
+#         \ \     /  __ \/  ___|| | | |
+#     _____\ \    | /  \/\ `--. | | | |
+#    |______> >   | |     `--. \| | | |
+#          / /    | \__/\/\__/ /\ \_/ /
+#         /_/      \____/\____/  \___/
 
-# WRITE THE CSV
 header = ['id'] + topicDictionary.lookupList
 notInTraining = notInTrainingList()
 exclude = set(string.punctuation)
@@ -113,7 +121,6 @@ with open('Results/Submission.csv', 'w', newline='') as outcsv:
                     if (totalCount > 6):
                         labels = labels + (newLabel, )
         count += 1
-
 
         printToSubmissionCSV(csvWriter,
                              reportName,

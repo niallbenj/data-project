@@ -2,6 +2,7 @@ import json
 from os import listdir
 from os.path import isfile, join
 
+
 class loadData():
 
     def __init__(self, directory, dataName):
@@ -12,20 +13,23 @@ class loadData():
 
     def getAllReports(self):
         for file in self.allJSONFiles:
-            myFile = json.loads(open(self.directory + "/" + file).read())
-            individualReport = myFile[self.dataName]
-            for item in individualReport:
-                documentName = item
-                publishDate = individualReport[item]['webPublicationDate']
-                topics = individualReport[item]['topics']
-                bodyText = individualReport[item]['bodyText']
-                report = singleDataReport(documentName, publishDate, topics, bodyText)
-                self.allReports.append(report)
-        return self.allReports
+            with open(self.directory + "/" + file, encoding='utf-8') as data_file:
+                data = json.load(data_file)
+                individualReport = data[self.dataName]
+                for item in individualReport:
+                    documentName = item
+                    publishDate = individualReport[item]['webPublicationDate']
+                    topics = individualReport[item]['topics']
+                    bodyText = individualReport[item]['bodyText']
+                    bodyText = bodyText.encode("ascii", "ignore")
+                    report = singleDataReport(documentName, publishDate, topics, bodyText)
+                    self.allReports.append(report)
+        return(self.allReports)
+
 
 class singleDataReport():
     def __init__(self, documentName, publishDate, topics, bodyText):
-        self.publishDate = publishDate
         self.topics = topics
+        self.publishDate = publishDate
         self.bodyText = bodyText
         self.documentName = documentName

@@ -1,4 +1,10 @@
 __pycache__
-
+actualData/
 testData/
 trainingData/
+debug/
+__init__.py
+*.pyc
+baeResults.txt
+f1Results.txt
+Results/Submission.csv

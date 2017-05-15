@@ -1,4 +1,4 @@
-def calculateF1Score(topicsInResult, labelsPredicted):
+def F1(topicsInResult, labelsPredicted):
     averagef1 = 0.0
     for i, document in enumerate(topicsInResult):
         predictedLabels = labelsPredicted[i]

@@ -1,4 +1,4 @@
-def PrintToSubmissionCSV(csvWriter, reportName, labelsInReport, allLabels):
+def toCSV(csvWriter, reportName, labelsInReport, allLabels):
     csvRow = [0] * len(allLabels)
     for label in labelsInReport:
         csvRow[allLabels.index(label)] = 1

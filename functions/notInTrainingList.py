@@ -1,4 +1,4 @@
-def notInTrainingList():
+def notTrained():
     dic1 = {'algerianhostagecrisis': ['algerian', 'hostage', 'crisis'],
             'australianguncontrol': ['australian', 'gun', 'control'],
             'australiansecurityandcounterterrorism': ['security', 'counter', 'terrorism'],

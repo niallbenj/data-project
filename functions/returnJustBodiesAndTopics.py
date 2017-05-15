@@ -1,5 +1,5 @@
-def returnJustBodiesAndTopics(load):
-    reports = load.getAllReports()
+def returnJustBodiesAndTopics(load, red, jsonInRedis):
+    reports = load.getAllReports(red, jsonInRedis)
     justBodies = []
     justTopics = []
     for report in reports:

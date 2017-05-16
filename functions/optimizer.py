@@ -128,4 +128,10 @@ def listOfGuesses(singleTopic):
                'uksecurity': 323,
                'unitednations': 336,
                'ukcrime': 847}
-    return(bigList[singleTopic])
+
+    # Still do analysis on topics that arent the top hits
+    # - this could be for fine tuning down the line
+    if singleTopic not in bigList:
+        return(0)
+    else:
+        return(bigList[singleTopic])

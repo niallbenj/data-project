@@ -13,12 +13,17 @@ def basic():
                     useful for loading in multiple `*.json` files
     latestFileNumber = Number of .json files to include - 1
                        i.e. MUST be bigger than 1....
+    includeSingles = True if single label classifier models have been built
+                          and are to be added to the main classification
+                   = False Dont include the extra labels
     '''
     optimize = True
     allTrainingData = True
     jsonInRedis = True
+    includeSingles = False
     latestFileNumber = 2
-    return(optimize, allTrainingData, jsonInRedis, latestFileNumber)
+    return(optimize, allTrainingData, jsonInRedis, latestFileNumber,
+           includeSingles)
 
 
 def fileThresholds(red, fileStart):

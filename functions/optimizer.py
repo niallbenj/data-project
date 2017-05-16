@@ -60,11 +60,11 @@ def singleLoop(maxDf, minDf, maxFeatures, initialTime, myLabelMatrix, corpus,
 def valuesToIncrement():
     loops = 1
     minDfRangeLo = 0.0
-    minDfRangeHi = 0.0  # 0.1
-    maxDfRangeLo = 1.0  # 0.8
+    minDfRangeHi = 0.0
+    maxDfRangeLo = 1.0
     maxDfRangeHi = 1.0
-    maxFeaturesLo = 25000
-    maxFeaturesHi = 25000  # 75000
+    maxFeaturesLo = 60000
+    maxFeaturesHi = 60000
 
     minDfInc = (minDfRangeHi - minDfRangeLo)/float(loops)
     maxDfInc = (maxDfRangeHi - maxDfRangeLo)/float(loops)

@@ -16,8 +16,8 @@ import functions.basicInput as basicInput
 import functions.createCorpus as createCorpus
 import functions.important as important
 import functions.storeBestResults as storeBestResults
+import functions.includeSingleTopics as includeSingleTopics
 import redis
-import sys
 
 
 def mainProcess(singleTopic, onlyOne):
@@ -34,7 +34,7 @@ def mainProcess(singleTopic, onlyOne):
 
     np.set_printoptions(threshold=np.nan)
     inputs = basicInput.basic()
-    (optimize, allTrainingData, jsonInRedis, latestFileNumber) = inputs
+    (optimize, allTrainingData, jsonInRedis, latestFileNumber, includeSingles) = inputs
 
     '''
           _                     _
@@ -124,9 +124,7 @@ def mainProcess(singleTopic, onlyOne):
                                                 singleTopic)
         if (num == 0):
             return
-        else:
-            storeBestResults.store(redis, singleTopic, reportNames,
-                                   bestLabels)
+        storeBestResults.store(redis, singleTopic, reportNames, bestLabels)
         return
     else:
         (minDf, maxDf, maxFeatures) = staticValues.static()
@@ -161,6 +159,10 @@ def mainProcess(singleTopic, onlyOne):
             myBodyText = makeAGuess.reshapeBodyText(reportsToPredict[count],
                                                     exclude)
             newLabels = makeAGuess.guess(labels, notInTraining, myBodyText)
+
+            if includeSingles:
+                labels = includeSingleTopics.include()
+
             printToSubmissionCSV.toCSV(csvWriter, reportName, newLabels,
                                        topicDictionary.lookupList)
 

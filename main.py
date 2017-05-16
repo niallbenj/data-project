@@ -150,6 +150,7 @@ def mainProcess(singleTopic, onlyOne):
     header = ['id'] + topicDictionary.lookupList
     notInTraining = notInTrainingList.notTrained()
     exclude = set(string.punctuation)
+    red = redis.Redis(host='localhost', port=6379, db=7)
     with open('Results/Submission.csv', 'w', newline='') as outcsv:
         csvWriter = csv.writer(outcsv)
         csvWriter.writerow(header)
@@ -161,7 +162,8 @@ def mainProcess(singleTopic, onlyOne):
             newLabels = makeAGuess.guess(labels, notInTraining, myBodyText)
 
             if includeSingles:
-                labels = includeSingleTopics.include()
+                newLabels = includeSingleTopics.include(red, newLabels,
+                                                        reportName)
 
             printToSubmissionCSV.toCSV(csvWriter, reportName, newLabels,
                                        topicDictionary.lookupList)
@@ -193,7 +195,7 @@ if __name__ == '__main__':
             impList = important.important()
         red = redis.Redis(host='localhost', port=6379, db=7)
         for j, singleTopic in enumerate(impList):
-            if (red.exists(singleTopic) and ignore):
+            if (red.exists(singleTopic) and not ignore):
                 print(str(singleTopic) + " already exists!")
             else:
                 mainProcess(singleTopic, singleClassify)

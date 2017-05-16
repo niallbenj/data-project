@@ -172,14 +172,26 @@ if __name__ == '__main__':
     '''
     singleClassify = True for a binary single classification or empty
                    = False for normal classification process
+    ignore = True then ignore the fact that sets already exist in redis
+           = False only allow new entries in impList to be accessed
+    improveOneTopic = True then target a specific label to include more
+                           labels
+                    = False then see above
+    improveName = '' A string of the label to improve on
     '''
     singleClassify = True
+    ignore = True
+    improveOneTopic = False
+    improveName = ''
 
     if singleClassify:
-        impList = important.important()
+        if improveOneTopic:
+            impList = [improveName]
+        else:
+            impList = important.important()
         red = redis.Redis(host='localhost', port=6379, db=7)
         for j, singleTopic in enumerate(impList):
-            if red.exists(singleTopic):
+            if (red.exists(singleTopic) and ignore):
                 print(str(singleTopic) + " already exists!")
             else:
                 mainProcess(singleTopic, singleClassify)

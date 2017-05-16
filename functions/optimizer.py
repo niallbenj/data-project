@@ -1,59 +1,131 @@
-import sys
-import random
 
 
 def optimizer(initialTime, myLabelMatrix, corpus, reportsToPredict,
-              topicsInResult, debug, classifyAndPredict, calculateF1Score):
-    if not debug:
-        minDf = 0.00009
-        maxDf = 0.99
-        maxFeatures = 60000
-        classificationRes = classifyAndPredict.predict(maxDf, minDf, maxFeatures,
-                                               initialTime, myLabelMatrix,
-                                               corpus, reportsToPredict,
-                                               topicsInResult, debug,
-                                               None)
-        (labelsPredicted, reportsToPredict) = classificationRes
-        return(labelsPredicted, reportsToPredict)
-    else:
-        F = open("f1Results.txt", "a")
-        F.write("minDf, maxDf, maxFeatures, numberOfFiles, f1Score \n")
-        variables = valuesToIncrement()
-        loops = variables[0]
-        minDf = variables[1]
-        maxDf = variables[3]
-        maxFeatures = variables[5]
-        for i in range(loops):
-            minDf += variables[2]
-            for j in range(loops):
-                maxDf += variables[4]
-                for x in range(loops):
-                    maxFeatures += variables[6]
-                    print("loading file " + str(x) + " / " + str(loops))
-                    numberOfFiles = 2
-                    classifyInput = (maxDf, minDf, maxFeatures, initialTime,
-                                     myLabelMatrix, corpus, reportsToPredict,
-                                     topicsInResult, debug, calculateF1Score)
-                    classificationRes = classifyAndPredict.predict(classifyInput)
-                    (labelsPredicted, reportsToPredict, totalf1) = classificationRes
-                    stringToWrite = str(minDf) + ", " + str(maxDf) + ", " + str(maxFeatures) + ", " + str(numberOfFiles) + str(totalf1) + "\n"
-                    F.write(stringToWrite)
+              topicsInResult, optimize, classifyAndPredict, calculateF1Score,
+              singleTopic):
+    bestScore = -1000000
+    variables = valuesToIncrement()
+    loops = variables[0]
+    startingMinDf = variables[1]
+    startingMaxDf = variables[3]
+    startingMaxFeatures = variables[5]
+    minDf = startingMinDf
+    maxDf = startingMaxDf
+    maxFeatures = startingMaxFeatures
 
-    sys.exit("Check results")
+    # Begin looping over results..
+    print("\n" + "Results for ---> " + str(singleTopic) + " <---")
+    print("minDf, maxDf, maxFeatures, singleClassifyCount")
+    for i in range(loops):
+        minDf += variables[2]
+        maxDf = startingMaxDf
+        maxFeatures = startingMaxFeatures
+        for j in range(loops):
+            maxDf += variables[4]
+            maxFeatures = startingMaxFeatures
+            for k in range(loops):
+                maxFeatures += variables[6]
+                out = singleLoop(maxDf, minDf, maxFeatures, initialTime,
+                                 myLabelMatrix, corpus, reportsToPredict,
+                                 topicsInResult, optimize, calculateF1Score,
+                                 classifyAndPredict, singleTopic)
+                (singleClassifyCount, labelsPredicted) = out
+                text = printOutput(minDf, maxDf, maxFeatures,
+                                   singleClassifyCount)
+                print(text)
+                (bestLabels, bestScore) = checkClosest(singleClassifyCount,
+                                                       singleTopic,
+                                                       labelsPredicted,
+                                                       bestScore)
+    return(bestLabels, singleClassifyCount)
+
+
+def singleLoop(maxDf, minDf, maxFeatures, initialTime, myLabelMatrix, corpus,
+               reportsToPredict, topicsInResult, optimize, calculateF1Score,
+               classifyAndPredict, singleTopic):
+    classificationRes = classifyAndPredict.predict(maxDf, minDf, maxFeatures,
+                                                   initialTime, myLabelMatrix,
+                                                   corpus, reportsToPredict,
+                                                   topicsInResult, optimize,
+                                                   calculateF1Score)
+    (labelsPredicted, reportsToPredict) = classificationRes
+    singleClassifyCount = 0
+    for labels in labelsPredicted:
+        checkLabel = list(labels)
+        if singleTopic in checkLabel:
+            singleClassifyCount += 1
+    return(singleClassifyCount, labelsPredicted)
 
 
 def valuesToIncrement():
-    loops = 30
+    loops = 1
     minDfRangeLo = 0.0
-    minDfRangeHi = 0.1
-    maxDfRangeLo = 0.8
+    minDfRangeHi = 0.0  # 0.1
+    maxDfRangeLo = 1.0  # 0.8
     maxDfRangeHi = 1.0
     maxFeaturesLo = 25000
-    maxFeaturesHi = 70000
+    maxFeaturesHi = 25000  # 75000
 
     minDfInc = (minDfRangeHi - minDfRangeLo)/float(loops)
     maxDfInc = (maxDfRangeHi - maxDfRangeLo)/float(loops)
     maxFeaturesInc = int((maxFeaturesHi - maxFeaturesLo)/float(loops))
-    return(loops, minDfRangeLo - minDfInc, minDfInc
+    return(loops, minDfRangeLo - minDfInc, minDfInc,
            maxDfRangeLo - maxDfInc, maxDfInc,
            maxFeaturesLo - maxFeaturesInc, maxFeaturesInc)
+
+
+def printOutput(minDf, maxDf, maxFeatures, singleClassifyCount):
+    text = ''
+    text += str(minDf) + ", "
+    text += str(maxDf) + ", "
+    text += str(maxFeatures) + ", "
+    text += str(singleClassifyCount)
+    return(text)
+
+
+def checkClosest(singleClassifyCount, singleTopic, labelsPredicted, bestScore):
+    closest = listOfGuesses(singleTopic)
+    if (abs(closest - singleClassifyCount) < abs(closest - bestScore)):
+        bestScore = singleClassifyCount
+        bestLabels = labelsPredicted
+    return(bestLabels, bestScore)
+
+
+def listOfGuesses(singleTopic):
+    bigList = {'afghanistan': 422,
+               'aid': 161,
+               'arabandmiddleeastprotests': 270,
+               'criminaljustice': 256,
+               'defence': 174,
+               'ebola': 460,
+               'economy': 712,
+               'egypt': 233,
+               'france': 523,
+               'germany': 346,
+               'hacking': 129,
+               'humanrights': 554,
+               'immigration': 529,
+               'india': 320,
+               'iraq': 648,
+               'isis': 805,
+               'israel': 443,
+               'libya': 179,
+               'localgovernment': 173,
+               'london': 1011,
+               'metropolitanpolice': 141,
+               'military': 369,
+               'naturaldisasters': 228,
+               'nuclearweapons': 141,
+               'police': 561,
+               'protest': 464,
+               'religion': 859,
+               'russia': 520,
+               'surveillance': 193,
+               'southafrica': 217,
+               'syria': 388,
+               'terrorism': 195,
+               'transport': 379,
+               'uksecurity': 323,
+               'unitednations': 336,
+               'ukcrime': 847}
+    return(bigList[singleTopic])

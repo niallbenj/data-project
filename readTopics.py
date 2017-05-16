@@ -9,10 +9,11 @@ class readTopics():
             self.lookupList.append(element.rstrip('\n'))
             self.lookupSet.append(element.rstrip('\n'))
 
-    def generateMultiLabelArray(self, singleDocumentTopics):
+    def generateMultiLabelArray(self, singleDocumentTopics, singleTopic):
         topicArray = []
         for item in singleDocumentTopics:
-            if item in self.lookupList:
+            # fix this here!!! item == singleTopic or item inself.lookupList
+            if item == singleTopic:
                 topicArray.append(item)
             if item in self.lookupSet:
                 self.lookupSet.remove(item)

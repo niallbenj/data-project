@@ -1,4 +1,4 @@
-def reshapeBodyText(newText):
+def reshapeBodyText(newText, exclude):
     newText = newText.decode()
     newText = ''.join(ch for ch in newText if ch not in exclude)
     newText = newText.split()
@@ -6,7 +6,7 @@ def reshapeBodyText(newText):
     return(myBodyText)
 
 
-def guess(labels, notInTraining):
+def guess(labels, notInTraining, myBodyText):
     for newLabel in notInTraining:
         value = 0
         totalCount = 0

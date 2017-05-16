@@ -1,7 +1,6 @@
 import json
 from os import listdir
 
-
 class loadData():
 
     def __init__(self, directory, dataName):
@@ -13,10 +12,10 @@ class loadData():
     def getAllReports(self, red, jsonInRedis):
         documentCount = 0
         for file in self.allJSONFiles:
-            if jsonInRedis:
+            if jsonInRedis and self.directory == 'trainingData':
                 print("---> Loading file into Redis - " + file)
-            with open(self.directory + "/" + file, encoding='utf-8') as data_file:
-                data = json.load(data_file)
+            with open(self.directory + "/" + file, encoding='utf-8') as dataFile:
+                data = json.load(dataFile)
                 individualReport = data[self.dataName]
                 for item in individualReport:
                     documentName = item
@@ -24,14 +23,14 @@ class loadData():
                     topics = individualReport[item]['topics']
                     bodyText = individualReport[item]['bodyText']
                     bodyText = bodyText.encode("ascii", "ignore")
-                    if (jsonInRedis):
+                    if (jsonInRedis and self.directory == 'trainingData'):
                         mapDict = {}
                         for j, topic in enumerate(topics):
                             mapDict[j+1] = topic
                         if (mapDict != {}):
                             documentCount += 1
-                            keyVal = ''.join(['body:', str(documentCount)])
-                            topicVal = ''.join(['topics:', str(documentCount)])
+                            keyVal = 'body:' + str(documentCount)
+                            topicVal = 'topics:' + str(documentCount)
                             red.set(name=keyVal, value=bodyText)
                             red.hmset(name=topicVal, mapping=mapDict)
                             red.incr(name='totalKeys', amount=1)
@@ -39,6 +38,11 @@ class loadData():
                         report = singleDataReport(documentName, publishDate,
                                                   topics, bodyText)
                         self.allReports.append(report)
+
+            if (jsonInRedis and self.directory == 'trainingData'):
+                red.hset(name='fileStartPosition',
+                         key=file,
+                         value=documentCount)
 
         if not jsonInRedis:
             return(self.allReports)

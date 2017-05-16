@@ -5,5 +5,5 @@ def returnJustBodiesAndTopics(load, red, jsonInRedis):
     for report in reports:
         justBodies.append(report.bodyText)
         justTopics.append(report.topics)
-    reports = []
+    reports = None
     return(justBodies, justTopics)

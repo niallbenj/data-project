@@ -18,6 +18,7 @@ import functions.important as important
 import functions.storeBestResults as storeBestResults
 import functions.includeSingleTopics as includeSingleTopics
 import redis
+import sys
 
 
 def mainProcess(singleTopic, onlyOne):
@@ -150,24 +151,43 @@ def mainProcess(singleTopic, onlyOne):
     header = ['id'] + topicDictionary.lookupList
     notInTraining = notInTrainingList.notTrained()
     exclude = set(string.punctuation)
-    red = redis.Redis(host='localhost', port=6379, db=7)
+    red = redis.Redis(host='localhost', port=6379, db=6)
     with open('Results/Submission.csv', 'w', newline='') as outcsv:
         csvWriter = csv.writer(outcsv)
         csvWriter.writerow(header)
 
         count = 0
+        count2 = 0
+        storeRes = False
+        checkRes = False
         for reportName, labels in zip(reportNames, labelsPredicted):
             myBodyText = makeAGuess.reshapeBodyText(reportsToPredict[count],
                                                     exclude)
             newLabels = makeAGuess.guess(labels, notInTraining, myBodyText)
 
+            if storeRes:
+                for item in newLabels:
+                    red.sadd(reportName, item)
+
+            if checkRes:
+                for item in newLabels:
+                    member = red.sismember(reportName, item)
+                    oldTopic = item.decode("utf-8")
+                    if member and (oldTopic not in newLabels):
+                        newLabels = newLabels + (oldTopic, )
+
+            includeSingles = False
             if includeSingles:
-                newLabels = includeSingleTopics.include(red, newLabels,
-                                                        reportName)
+                (newLabels, count2) = includeSingleTopics.include(red,
+                                                                  newLabels,
+                                                                  reportName,
+                                                                  count2)
 
             printToSubmissionCSV.toCSV(csvWriter, reportName, newLabels,
                                        topicDictionary.lookupList)
 
+
+        print("Included an extra " + str(count2) + " labels.")
         text = "CSV written / Run complete --->> "
         print(text + str(datetime.now() - initialTime))
 
@@ -183,8 +203,8 @@ if __name__ == '__main__':
                     = False then see above
     improveName = '' A string of the label to improve on
     '''
-    singleClassify = True
-    ignore = True
+    singleClassify = False  # False for main run / True for one at a time.
+    ignore = False
     improveOneTopic = False
     improveName = ''
 
@@ -202,4 +222,4 @@ if __name__ == '__main__':
                 text = "Completed ---->>>>>>>> " + str(j) + " / "
                 print(text + str(len(impList)) + " : " + str(impList[j]))
     else:
-        mainProcess(None, singleClassify)
+        mainProcess(False, singleClassify)

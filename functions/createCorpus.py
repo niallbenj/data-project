@@ -8,12 +8,11 @@ def createCorpusFromRedis(red, numberOfKeys, startingEntry, topicDictionary,
         holdOneArray = []
         for item in topics:
             holdOneArray.append(topics[item].decode("utf-8"))
-        singleTopicArray = topicDictionary.generateMultiLabelArray(holdOneArray, singleTopic)
+        singleTopicArray = topicDictionary.generateMultiLabelArray(holdOneArray,
+                                                                   singleTopic)
         if (singleTopicArray != [] or singleClassify):
             if (singleTopicArray == []):
                 singleTopicArray = ['blank']
-            else:
-                singleTopic = singleTopicArray[0]
             myLabelMatrix.append(singleTopicArray)
             corpus.append(bodyText)
     return(myLabelMatrix, corpus)
@@ -29,8 +28,6 @@ def createCorpusFromFile(justBodies, justTopics, topicDictionary, singleTopic,
         if (singleTopicArray != [] or singleClassify):
             if (singleTopicArray == []):
                 singleTopicArray = ['blank']
-            else:
-                singleTopic = singleTopicArray[0]
             myLabelMatrix.append(singleTopicArray)
             corpus.append(theNextBody)
         justBodies[i] = None

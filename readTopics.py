@@ -12,9 +12,12 @@ class readTopics():
     def generateMultiLabelArray(self, singleDocumentTopics, singleTopic):
         topicArray = []
         for item in singleDocumentTopics:
-            # fix this here!!! item == singleTopic or item inself.lookupList
-            if item == singleTopic:
-                topicArray.append(item)
+            if not singleTopic:
+                if item in self.lookupList:
+                    topicArray.append(item)
+            else:
+                if item == singleTopic:
+                    topicArray.append(item)
             if item in self.lookupSet:
                 self.lookupSet.remove(item)
         return(topicArray)

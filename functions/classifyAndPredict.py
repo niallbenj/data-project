@@ -2,12 +2,13 @@ from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.linear_model import SGDClassifier
+from sklearn.svm import SVC
 from datetime import datetime
 
 
 def predict(maxDf, minDf, maxFeatures, initialTime, myLabelMatrix, corpus,
             reportsToPredict, topicsInResult, optimize, calculateF1Score):
-    provideOutput = False
+    provideOutput = True
     tf = TfidfVectorizer(input='content',
                          analyzer='word',
                          ngram_range=(1, 3),
@@ -27,8 +28,10 @@ def predict(maxDf, minDf, maxFeatures, initialTime, myLabelMatrix, corpus,
         print(text + str(datetime.now() - initialTime))
     mlb = MultiLabelBinarizer()
     labeledTopics = mlb.fit_transform(myLabelMatrix)
-    classifier = OneVsRestClassifier(SGDClassifier()).fit(tfidf_matrix,
-                                                          labeledTopics)
+    # try this?? SVC(kernel='linear')
+    # SGDClassifier()
+    classifier = OneVsRestClassifier(SVC(kernel='rbf')).fit(tfidf_matrix,
+                                                            labeledTopics)
 
     if provideOutput:
         text = 'Classification complete --->> '

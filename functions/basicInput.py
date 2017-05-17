@@ -17,11 +17,11 @@ def basic():
                           and are to be added to the main classification
                    = False Dont include the extra labels
     '''
-    optimize = True
+    optimize = False  # False for main run / True for single
     allTrainingData = True
     jsonInRedis = True
     includeSingles = False
-    latestFileNumber = 2
+    latestFileNumber = 10  # go back to 4 for new classifier....
     return(optimize, allTrainingData, jsonInRedis, latestFileNumber,
            includeSingles)
 

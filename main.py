@@ -158,7 +158,7 @@ def mainProcess(singleTopic, onlyOne):
 
         count = 0
         count2 = 0
-        storeRes = False
+        storeRes = True
         checkRes = False
         for reportName, labels in zip(reportNames, labelsPredicted):
             myBodyText = makeAGuess.reshapeBodyText(reportsToPredict[count],
@@ -203,8 +203,8 @@ if __name__ == '__main__':
                     = False then see above
     improveName = '' A string of the label to improve on
     '''
-    singleClassify = False  # False for main run / True for one at a time.
-    ignore = False
+    singleClassify = True  # False for main run / True for one at a time.
+    ignore = True
     improveOneTopic = False
     improveName = ''
 

@@ -35,8 +35,15 @@ def mainProcess(singleTopic, onlyOne):
     '''
 
     np.set_printoptions(threshold=np.nan)
-    inputs = basicInput.basic()
-    (optimize, allTrainingData, jsonInRedis, latestFileNumber, includeSingles) = inputs
+    # inputs = basicInput.basic()
+ 
+    optimize = inputs['optimize']
+    allTrainingData = inputs['allTrainingData']
+    jsonInRedis = inputs['jsonInRedis']
+    latestFileNumber = int(inputs['latestFileNumber'])
+    includeSingles = inputs['includeSingles']
+
+    # (optimize, allTrainingData, jsonInRedis, latestFileNumber, includeSingles) = inputs
 
     '''
           _                     _
@@ -63,8 +70,7 @@ def mainProcess(singleTopic, onlyOne):
             print(text + str(datetime.now() - loadTime))
 
     else:
-        (justBodies, justTopics) = returnJustBodiesAndTopics(load, red,
-                                                             jsonInRedis)
+        (justBodies, justTopics) = returnJustBodiesAndTopics(load, red, jsonInRedis)
 
     '''
           ____
@@ -233,4 +239,4 @@ if __name__ == '__main__':
                 text = "Completed ---->>>>>>>> " + str(j) + " / "
                 print(text + str(len(impList)) + " : " + str(impList[j]))
     else:
-        mainProcess(False, singleClassify)
+        mainProcess(False, singleClassify, inputs)

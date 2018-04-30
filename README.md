@@ -30,8 +30,8 @@ The datasets consist of:
 ### The Solution
 You are required to classify each test article by predicting its topics. Your solution must:
 
-    Classify each test article by predicting the presence or absence of only those topics that are provided in the topic dictionary.
-    For each test article, predict a ‘1’ or ‘0’ for each topic in the dictionary where ‘1’ predicts the topic is present and ‘0’ predicts it is absent.
+  - Classify each test article by predicting the presence or absence of only those topics that are provided in the topic dictionary.
+  - For each test article, predict a ‘1’ or ‘0’ for each topic in the dictionary where ‘1’ predicts the topic is present and ‘0’ predicts it is absent.
 
 Each article may be classified by predicting that is has multiple topics, only one topic, or no topics from the tag dictionary.
 

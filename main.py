@@ -1,6 +1,7 @@
 import dataLoader
 import readTopics
 import numpy as np
+import yaml
 from datetime import datetime
 import csv
 import string
@@ -111,7 +112,7 @@ def mainProcess(singleTopic, onlyOne):
         | /  \/ | __ _ ___ ___ _| |_ _   _
         | |   | |/ _` / __/ __| |  _| | | |
         | \__/\ | (_| \__ \__ \ | | | |_| |
-         \____/_|\__,_|___/___/_|_|  \__, |
+        \_____/_|\__,_|___/___/_|_|  \__, |
                                       __/ |
                                      |___/
     '''
@@ -145,7 +146,7 @@ def mainProcess(singleTopic, onlyOne):
         | /  \/\ `--. | | | |
         | |     `--. \| | | |
         | \__/\/\__/ /\ \_/ /
-         \____/\____/  \___/
+        \_____/\____/  \___/
     '''
 
     header = ['id'] + topicDictionary.lookupList
@@ -208,6 +209,16 @@ if __name__ == '__main__':
     improveOneTopic = False
     improveName = ''
 
+    print("## Loading Basic Input \n")
+    with open("input.yaml", 'r') as stream:
+        try:
+            inputs = yaml.load(stream)
+            for key in inputs:
+                print(key + " : " + str(inputs[key]))
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    print("-----------")
     if singleClassify:
         if improveOneTopic:
             impList = [improveName]

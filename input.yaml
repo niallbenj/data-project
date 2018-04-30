@@ -1,0 +1,10 @@
+optimize: false
+allTrainingData: true
+jsonInRedis: true
+includeSingles: false
+latestFileNumber: 10
+singleClassify: true
+ignore: true
+improveOneTopic: false
+improveName: ""
+
